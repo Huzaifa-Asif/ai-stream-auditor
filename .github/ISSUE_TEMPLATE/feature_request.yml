@@ -1,0 +1,22 @@
+name: Feature request
+description: Propose a focused lifecycle diagnostic
+title: "[Feature]: "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem and primary protocol source
+      description: Link current official provider documentation for the event behavior.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed diagnostic behavior
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
