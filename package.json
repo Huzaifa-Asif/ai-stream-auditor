@@ -1,6 +1,6 @@
 {
   "name": "ai-stream-auditor",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Audit decoded OpenAI Responses and Anthropic Messages event lifecycles for silent or malformed stream endings.",
   "keywords": ["ai", "streaming", "openai", "anthropic", "llm", "diagnostics", "testing"],
   "license": "MIT",

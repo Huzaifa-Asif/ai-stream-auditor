@@ -57,6 +57,7 @@ class StreamAuditor {
     this.eventCount = 0;
     this.counts = new Map();
     this.diagnostics = [];
+    this.hasErrors = false;
     this.droppedDiagnostics = 0;
     this.terminal = undefined;
     this.started = false;
@@ -69,6 +70,7 @@ class StreamAuditor {
   }
 
   _diagnostic(severity, code, index, type, details) {
+    if (severity === 'error') this.hasErrors = true;
     if (this.diagnostics.length >= this.limits.maxDiagnostics) {
       this.droppedDiagnostics += 1;
       return;
@@ -92,6 +94,13 @@ class StreamAuditor {
   _delta(key, index, type) {
     if (!this.openUnits.has(key)) {
       this._diagnostic('error', this.doneUnits.has(key) ? 'delta_after_done' : 'delta_without_start', index, type, { unit: key });
+    }
+  }
+
+  _requireOpenItem(event, index, type) {
+    const parent = `item:${event.output_index}`;
+    if (!this.openUnits.has(parent)) {
+      this._diagnostic('error', this.doneUnits.has(parent) ? 'content_after_item_done' : 'content_without_item', index, type, { parent });
     }
   }
 
@@ -167,14 +176,17 @@ class StreamAuditor {
       return;
     }
     if (type === 'response.content_part.added') {
+      this._requireOpenItem(event, index, type);
       this._open(`content:${event.output_index}:${event.content_index}`, index, type);
       return;
     }
     if (type === 'response.content_part.done') {
+      this._requireOpenItem(event, index, type);
       this._done(`content:${event.output_index}:${event.content_index}`, index, type);
       return;
     }
     if (/\.delta$/.test(type)) {
+      if (Number.isSafeInteger(event.content_index)) this._requireOpenItem(event, index, type);
       const key = Number.isSafeInteger(event.content_index)
         ? `content:${event.output_index}:${event.content_index}`
         : `item:${event.output_index}`;
@@ -245,9 +257,8 @@ class StreamAuditor {
     if (!this.started && !this.terminal && this.eventCount > 0) this._diagnostic('error', 'missing_start', this.eventCount);
     if (!this.terminal && !this.boundExceeded) this._diagnostic('error', 'missing_terminal', this.eventCount);
 
-    const hasErrors = this.diagnostics.some(({ severity }) => severity === 'error');
     let outcome;
-    if (this.boundExceeded || hasErrors && this.terminal && this.terminal.kind === 'completed') outcome = 'invalid';
+    if (this.boundExceeded || this.hasErrors && this.terminal && this.terminal.kind === 'completed') outcome = 'invalid';
     else if (this.terminal) outcome = this.terminal.kind === 'completed' && this.dialect === 'anthropic-messages' && this.stopReason === 'tool_use'
       ? 'tool_use'
       : this.terminal.kind === 'completed' && this.dialect === 'anthropic-messages' && this.stopReason === 'pause_turn'

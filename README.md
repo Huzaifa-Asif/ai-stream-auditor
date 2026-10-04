@@ -142,6 +142,7 @@ This function deliberately accepts only synchronous iterables. Use `createStream
 
 - `response.created` lifecycle start
 - Output-item and content-part added/done pairing
+- Content-part starts, deltas, and stops require their output item to remain open
 - Delta events targeting an open item or content part
 - Non-increasing `sequence_number` values when present
 - `response.completed`, `response.failed`, `response.incomplete`, `response.cancelled`, and `error` terminals
@@ -215,7 +216,9 @@ Provider protocols can add event types. The report remains successful if no stru
 
 ### Too many diagnostics
 
-`droppedDiagnostics` counts records beyond `maxDiagnostics`. The first bounded set is retained. Increase the limit only when your logging and memory budgets permit.
+`droppedDiagnostics` counts records beyond `maxDiagnostics`. The first bounded set is retained. Errors still affect the final outcome even when their diagnostic records are dropped. Increase the limit only when your logging and memory budgets permit.
+
+Content parts are checked against their parent output item's lifecycle, as defined in the [OpenAI streaming events reference](https://developers.openai.com/api/reference/resources/responses/streaming-events). Orphan content parts and content activity after the output item completes make a nominal completion invalid.
 
 ## Security and privacy
 
