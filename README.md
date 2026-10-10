@@ -226,6 +226,17 @@ The auditor does not retain raw event payloads or generated text by default beca
 
 See [SECURITY.md](SECURITY.md) for vulnerability reporting.
 
+## Runnable example and related tool
+
+[`examples/audit-openai.mjs`](examples/audit-openai.mjs) feeds a minimal valid
+OpenAI Responses lifecycle through the auditor. It is executed by
+`npm run check` and ships in the npm tarball.
+
+Use [`async-iterator-watchdog`](https://www.npmjs.com/package/async-iterator-watchdog)
+when you also need active first-progress, idle, or total deadlines around the
+source iterator. The watchdog enforces time; this package validates protocol
+lifecycle and outcome.
+
 ## Development
 
 ```sh

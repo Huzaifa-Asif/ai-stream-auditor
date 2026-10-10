@@ -1,26 +1,55 @@
 {
   "name": "ai-stream-auditor",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Audit decoded OpenAI Responses and Anthropic Messages event lifecycles for silent or malformed stream endings.",
-  "keywords": ["ai", "streaming", "openai", "anthropic", "llm", "diagnostics", "testing"],
+  "keywords": [
+    "ai",
+    "streaming",
+    "openai",
+    "anthropic",
+    "llm",
+    "diagnostics",
+    "testing"
+  ],
   "license": "MIT",
   "author": "Huzaifa Asif",
-  "repository": { "type": "git", "url": "git+https://github.com/Huzaifa-Asif/ai-stream-auditor.git" },
-  "bugs": { "url": "https://github.com/Huzaifa-Asif/ai-stream-auditor/issues" },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Huzaifa-Asif/ai-stream-auditor.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Huzaifa-Asif/ai-stream-auditor/issues"
+  },
   "homepage": "https://github.com/Huzaifa-Asif/ai-stream-auditor#readme",
   "type": "module",
   "main": "./src/index.cjs",
   "module": "./src/index.js",
   "types": "./src/index.d.ts",
-  "exports": { ".": { "types": "./src/index.d.ts", "import": "./src/index.js", "require": "./src/index.cjs" } },
-  "files": ["src", "README.md", "LICENSE", "CHANGELOG.md"],
-  "engines": { "node": ">=18" },
+  "exports": {
+    ".": {
+      "types": "./src/index.d.ts",
+      "import": "./src/index.js",
+      "require": "./src/index.cjs"
+    }
+  },
+  "files": [
+    "src",
+    "examples",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
   "sideEffects": false,
   "scripts": {
     "lint": "node scripts/lint.mjs",
     "test": "node --test",
     "test:coverage": "node --experimental-test-coverage --test",
-    "check": "npm run lint && npm run test:coverage && npm pack --dry-run"
+    "check": "npm run lint && npm run test:coverage && node examples/audit-openai.mjs && npm pack --dry-run"
   },
-  "publishConfig": { "access": "public" }
+  "publishConfig": {
+    "access": "public"
+  }
 }

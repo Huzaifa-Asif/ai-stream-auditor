@@ -4,7 +4,15 @@ All notable changes follow [Keep a Changelog](https://keepachangelog.com/en/1.1.
 
 ## [Unreleased]
 
-## [1.0.1] - 2026-10-05
+## [1.0.2] - 2026-10-10
+
+### Added
+
+- Ship the runnable OpenAI Responses lifecycle example in the npm tarball.
+- Execute the example as part of the aggregate package check.
+- Document how lifecycle auditing composes with async-iterator deadlines.
+
+## [1.0.1] - 2026-10-06
 
 ### Fixed
 
