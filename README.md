@@ -15,6 +15,7 @@ The package's checks are based on the providers' documented event flows and moti
 - [OpenAI streaming Responses guide](https://developers.openai.com/api/docs/guides/streaming-responses)
 - [OpenAI Node issue #2046: mid-stream errors silently swallowed during iteration](https://github.com/openai/openai-node/issues/2046)
 - [Anthropic streaming Messages documentation](https://platform.claude.com/docs/en/build-with-claude/streaming)
+- [Anthropic TypeScript SDK issue #1264: `done()` resolves after EOF without `message_stop`](https://github.com/anthropics/anthropic-sdk-typescript/issues/1264)
 - [AxonHub issue #2092: synthetic end marker hides incomplete Responses stream](https://github.com/looplj/axonhub/issues/2092)
 
 This project is independent and is not an official OpenAI or Anthropic package.
@@ -54,6 +55,13 @@ const auditor = createStreamAuditor('anthropic-messages');
 for await (const event of stream) auditor.push(event);
 const report = auditor.finish();
 ```
+
+The integration suite feeds a credential-free synthetic stream through the
+official Anthropic TypeScript SDK and then through this auditor. It verifies
+that a transport EOF after `message_start` is reported as `transport_closed`,
+even when the SDK's `done()` promise resolves, while a stream containing
+`message_stop` remains successful. This guards the exact boundary described in
+[Anthropic SDK issue #1264](https://github.com/anthropics/anthropic-sdk-typescript/issues/1264).
 
 ## The three questions in every report
 
@@ -228,9 +236,10 @@ See [SECURITY.md](SECURITY.md) for vulnerability reporting.
 
 ## Runnable example and related tool
 
-[`examples/audit-openai.mjs`](examples/audit-openai.mjs) feeds a minimal valid
-OpenAI Responses lifecycle through the auditor. It is executed by
-`npm run check` and ships in the npm tarball.
+[`examples/audit-openai.mjs`](examples/audit-openai.mjs) and
+[`examples/audit-anthropic.mjs`](examples/audit-anthropic.mjs) feed minimal
+valid provider lifecycles through the auditor. Both are executed by
+`npm run check` and ship in the npm tarball.
 
 Use [`async-iterator-watchdog`](https://www.npmjs.com/package/async-iterator-watchdog)
 when you also need active first-progress, idle, or total deadlines around the
@@ -239,10 +248,21 @@ lifecycle and outcome.
 
 ## Development
 
+Node.js 20 or newer runs the complete suite, including the dev-only official
+Anthropic SDK integration:
+
 ```sh
-npm ci
+npm ci --ignore-scripts
 npm run check
-node examples/audit-openai.mjs
+```
+
+Node.js 18 remains supported by the package runtime. Because the current
+Anthropic SDK dev dependency requires Node.js 20 or newer, use the
+dependency-free core and package-surface check on Node.js 18:
+
+```sh
+npm ci --omit=dev --ignore-scripts
+npm run check:core
 ```
 
 ## License

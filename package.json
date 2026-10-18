@@ -1,6 +1,6 @@
 {
   "name": "ai-stream-auditor",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Audit decoded OpenAI Responses and Anthropic Messages event lifecycles for silent or malformed stream endings.",
   "keywords": [
     "ai",
@@ -37,7 +37,10 @@
     "examples",
     "README.md",
     "LICENSE",
-    "CHANGELOG.md"
+    "CHANGELOG.md",
+    "CODE_OF_CONDUCT.md",
+    "CONTRIBUTING.md",
+    "SECURITY.md"
   ],
   "engines": {
     "node": ">=18"
@@ -45,11 +48,18 @@
   "sideEffects": false,
   "scripts": {
     "lint": "node scripts/lint.mjs",
-    "test": "node --test",
+    "test": "npm run test:core && npm run test:integration",
+    "test:core": "node --test test/audit.test.js test/regressions.test.js",
+    "test:integration": "node --test test/anthropic-sdk.integration.test.js",
     "test:coverage": "node --experimental-test-coverage --test",
-    "check": "npm run lint && npm run test:coverage && node examples/audit-openai.mjs && npm pack --dry-run"
+    "test:coverage:core": "node --experimental-test-coverage --test test/audit.test.js test/regressions.test.js",
+    "check:core": "npm run lint && npm run test:coverage:core && node examples/audit-openai.mjs && node examples/audit-anthropic.mjs && npm pack --dry-run",
+    "check": "npm run lint && npm run test:coverage && node examples/audit-openai.mjs && node examples/audit-anthropic.mjs && npm pack --dry-run"
   },
   "publishConfig": {
     "access": "public"
+  },
+  "devDependencies": {
+    "@anthropic-ai/sdk": "0.135.0"
   }
 }
