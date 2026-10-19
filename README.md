@@ -56,11 +56,13 @@ for await (const event of stream) auditor.push(event);
 const report = auditor.finish();
 ```
 
-The integration suite feeds a credential-free synthetic stream through the
-official Anthropic TypeScript SDK and then through this auditor. It verifies
-that a transport EOF after `message_start` is reported as `transport_closed`,
-even when the SDK's `done()` promise resolves, while a stream containing
-`message_stop` remains successful. This guards the exact boundary described in
+The integration suite feeds credential-free synthetic streams through the
+official Anthropic TypeScript SDK and then through this auditor. It covers both
+`MessageStream` and `BetaMessageStream`, with EOF after `message_start`, during
+partial text, and during partial tool input. Every truncated case is reported
+as `transport_closed` even when the SDK's `done()` promise resolves, while a
+stream containing `message_stop` remains successful. This guards the exact
+EOF boundary and EOF cases from the suggested regression matrix described in
 [Anthropic SDK issue #1264](https://github.com/anthropics/anthropic-sdk-typescript/issues/1264).
 
 ## The three questions in every report

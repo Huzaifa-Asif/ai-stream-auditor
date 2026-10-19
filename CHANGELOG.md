@@ -8,9 +8,10 @@ All notable changes follow [Keep a Changelog](https://keepachangelog.com/en/1.1.
 
 ### Added
 
-- Exercise credential-free truncated and complete streams from the official
-  Anthropic TypeScript SDK against the auditor on the SDK's supported Node
-  runtimes, while preserving a dependency-free Node 18 core check.
+- Exercise credential-free truncated and complete `MessageStream` and
+  `BetaMessageStream` lifecycles from the official Anthropic TypeScript SDK,
+  including partial text and tool-input EOF, on the SDK's supported Node
+  runtimes while preserving a dependency-free Node 18 core check.
 - Ship and execute a runnable Anthropic Messages lifecycle example.
 - Include the security, contribution, and conduct policies in the package
   tarball.
