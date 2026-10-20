@@ -34,6 +34,20 @@ function readableEvents(events) {
   });
 }
 
+function failingReadable(events, error) {
+  let fail;
+  const readable = new ReadableStream({
+    start(controller) {
+      const encoder = new TextEncoder();
+      for (const event of events) {
+        controller.enqueue(encoder.encode(`${JSON.stringify(event)}\n`));
+      }
+      fail = () => controller.error(error);
+    },
+  });
+  return { readable, fail: () => fail() };
+}
+
 async function auditSdkStream(StreamClass, events) {
   const stream = StreamClass.fromReadableStream(readableEvents(events));
   const auditor = createStreamAuditor('anthropic-messages');
@@ -100,5 +114,40 @@ for (const [streamName, StreamClass] of [
     assert.equal(report.protocolComplete, true);
     assert.equal(report.successful, true);
     assert.equal(report.outcome, 'completed');
+  });
+
+  test(`records ${streamName} error between iterator reads as transport_error`, async () => {
+    const transportError = new Error(`${streamName} controlled transport failure`);
+    const { readable, fail } = failingReadable([messageStart()], transportError);
+    const stream = StreamClass.fromReadableStream(readable);
+    const iterator = stream[Symbol.asyncIterator]();
+    const auditor = createStreamAuditor('anthropic-messages');
+
+    const first = await iterator.next();
+    assert.equal(first.done, false);
+    auditor.push(first.value);
+
+    fail();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const next = await iterator.next().then(
+      (value) => ({ value }),
+      (error) => ({ error }),
+    );
+    assert.ok(next.error === transportError || next.value?.done === true);
+
+    const doneError = await stream.done().then(
+      () => undefined,
+      (error) => error,
+    );
+    assert.equal(doneError?.constructor.name, 'AnthropicError');
+    assert.equal(doneError?.cause, transportError);
+
+    const report = auditor.finish({ cause: 'transport_error' });
+    assert.equal(report.protocolComplete, false);
+    assert.equal(report.successful, false);
+    assert.equal(report.outcome, 'error');
+    assert.equal(report.finishCause, 'transport_error');
+    assert.ok(report.diagnostics.some(({ code }) => code === 'missing_terminal'));
   });
 }

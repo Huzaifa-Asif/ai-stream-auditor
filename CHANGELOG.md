@@ -4,7 +4,7 @@ All notable changes follow [Keep a Changelog](https://keepachangelog.com/en/1.1.
 
 ## [Unreleased]
 
-## [1.0.3] - 2026-10-19
+## [1.0.3] - 2026-10-21
 
 ### Added
 
@@ -12,6 +12,10 @@ All notable changes follow [Keep a Changelog](https://keepachangelog.com/en/1.1.
   `BetaMessageStream` lifecycles from the official Anthropic TypeScript SDK,
   including partial text and tool-input EOF, on the SDK's supported Node
   runtimes while preserving a dependency-free Node 18 core check.
+- Verify both official SDK stream helpers preserve a transport failure as the
+  cause of the `AnthropicError` from `done()` when it occurs between iterator
+  reads and that the auditor records the failure as `transport_error` rather
+  than a successful completion.
 - Ship and execute a runnable Anthropic Messages lifecycle example.
 - Include the security, contribution, and conduct policies in the package
   tarball.

@@ -65,6 +65,14 @@ stream containing `message_stop` remains successful. This guards the exact
 EOF boundary and EOF cases from the suggested regression matrix described in
 [Anthropic SDK issue #1264](https://github.com/anthropics/anthropic-sdk-typescript/issues/1264).
 
+The same integration boundary covers a transport failure between iterator
+reads, where current SDK helpers can report iterator completion while
+`done()` rejects with an `AnthropicError` whose cause is the original error.
+For both helpers the suite verifies the cause is preserved and the auditor
+reports `outcome: 'error'` with
+`finishCause: 'transport_error'`, matching
+[Anthropic SDK issue #1247](https://github.com/anthropics/anthropic-sdk-typescript/issues/1247).
+
 ## The three questions in every report
 
 ```ts
